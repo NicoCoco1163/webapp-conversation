@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3001",
     "lint": "next lint",
     "fix": "next lint --fix",
     "eslint-fix": "eslint . --fix",
@@ -40,7 +40,7 @@
     "js-cookie": "^3.0.1",
     "katex": "^0.16.7",
     "negotiator": "^0.6.3",
-    "next": "^14.0.4",
+    "next": "^14.2.18",
     "rc-textarea": "^1.5.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
