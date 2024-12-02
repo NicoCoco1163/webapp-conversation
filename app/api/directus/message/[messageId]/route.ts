@@ -18,7 +18,9 @@ export async function POST(request: NextRequest, { params: { messageId } }: { pa
     const updated = await directusClient.request(
       updateItems('dify_chat_history_spd', {
         filter: {
-          message_id: messageId,
+          message_id: {
+            _eq: messageId,
+          },
         },
       }, {
         ...params,
