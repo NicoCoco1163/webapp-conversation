@@ -1,0 +1,14 @@
+{
+  "apps": [
+    {
+      "name": "dify-client",
+      "script": "node_modules/next/dist/bin/next",
+      "max_memory_restart": "512M",
+      "args": "start -p 3001",
+      "instances": 1,
+      "exec_mode": "fork",
+      "output": "logs/webapp-conversation-output.log",
+      "error": "logs/webapp-conversation-error.log"
+    }
+  ]
+}
