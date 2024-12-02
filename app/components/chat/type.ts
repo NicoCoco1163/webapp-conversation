@@ -1,4 +1,4 @@
-import type { VisionFile } from '@/types/app'
+import type { RatingParams, VisionFile } from '@/types/app'
 
 export type LogAnnotation = {
   content: string
@@ -32,6 +32,7 @@ export type Feedbacktype = {
 }
 
 export type FeedbackFunc = (messageId: string, feedback: Feedbacktype) => Promise<any>
+export type RatingFunc = (messageId: string, rating: RatingParams) => Promise<any>
 export type SubmitAnnotationFunc = (messageId: string, content: string) => Promise<any>
 
 export type DisplayScene = 'web' | 'console'

@@ -1,7 +1,8 @@
 import { type NextRequest } from 'next/server'
 import { ChatClient } from 'dify-client'
+import { createDirectus, rest } from '@directus/sdk'
 import { v4 } from 'uuid'
-import { API_KEY, API_URL, APP_ID } from '@/config'
+import { API_KEY, API_URL, APP_ID, DIRECTUS_URL } from '@/config'
 
 const userPrefix = `user_${APP_ID}:`
 
@@ -19,3 +20,4 @@ export const setSession = (sessionId: string) => {
 }
 
 export const client = new ChatClient(API_KEY, API_URL || undefined)
+export const directusClient = createDirectus(DIRECTUS_URL).with(rest())

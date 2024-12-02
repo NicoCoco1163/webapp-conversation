@@ -49,7 +49,7 @@ export const userInputsFormToPromptVariables = (useInputs: UserInputFormItem[] |
         options: [],
       })
     }
-    else {
+    else if (content) {
       promptVariables.push({
         key: content.variable,
         name: content.label,

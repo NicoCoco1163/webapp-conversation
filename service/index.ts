@@ -60,3 +60,28 @@ export const updateFeedback = async ({ url, body }: { url: string; body: Feedbac
 export const generationConversationName = async (id: string) => {
   return post(`conversations/${id}/name`, { body: { auto_generate: true } })
 }
+
+export const getRatings = async (conversationId: string) => {
+  const map: Record<string, number> = {}
+
+  try {
+    const resp = (await get(`/directus/conversation/${conversationId}`)) as unknown as {
+      data: {
+        message_id: string
+        rating: number
+      }[]
+    }
+    if (Array.isArray(resp?.data)) {
+      resp.data.forEach((item) => {
+        map[item.message_id] = item.rating
+      })
+    }
+  }
+  catch (err) {}
+  return map
+}
+
+export {
+  get,
+  post,
+}

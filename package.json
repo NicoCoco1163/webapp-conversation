@@ -12,6 +12,7 @@
     "prepare": "husky install ./.husky"
   },
   "dependencies": {
+    "@directus/sdk": "^18.0.0",
     "@floating-ui/react": "^0.26.2",
     "@formatjs/intl-localematcher": "^0.2.32",
     "@headlessui/react": "^1.7.13",

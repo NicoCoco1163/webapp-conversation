@@ -10,8 +10,8 @@ import Toast from '@/app/components/base/toast'
 import Sidebar from '@/app/components/sidebar'
 import ConfigSence from '@/app/components/config-scence'
 import Header from '@/app/components/header'
-import { fetchAppParams, fetchChatList, fetchConversations, generationConversationName, sendChatMessage, updateFeedback } from '@/service'
-import type { ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
+import { fetchAppParams, fetchChatList, fetchConversations, generationConversationName, getRatings, post, sendChatMessage, updateFeedback } from '@/service'
+import type { ChatItem, ConversationItem, Feedbacktype, PromptConfig, RatingParams, VisionFile, VisionSettings } from '@/types/app'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
 import Chat from '@/app/components/chat'
 import { setLocaleOnClient } from '@/i18n/client'
@@ -78,6 +78,7 @@ const Main: FC = () => {
     setExistConversationInfo,
   } = useConversation()
 
+  const [ratings, setRatings] = useState<Record<string, number>>({})
   const [conversationIdChangeBecauseOfNew, setConversationIdChangeBecauseOfNew, getConversationIdChangeBecauseOfNew] = useGetState(false)
   const [isChatStarted, { setTrue: setChatStarted, setFalse: setChatNotStarted }] = useBoolean(false)
   const handleStartChat = (inputs: Record<string, any>) => {
@@ -122,21 +123,21 @@ const Main: FC = () => {
 
     // update chat list of current conversation
     if (!isNewConversation && !conversationIdChangeBecauseOfNew && !isResponding) {
+      getRatings(currConversationId).then(setRatings)
       fetchChatList(currConversationId).then((res: any) => {
         const { data } = res
         const newChatList: ChatItem[] = generateNewChatListWithOpenStatement(notSyncToStateIntroduction, notSyncToStateInputs)
-
         data.forEach((item: any) => {
           newChatList.push({
             id: `question-${item.id}`,
             content: item.query,
             isAnswer: false,
             message_files: item.message_files?.filter((file: any) => file.belongs_to === 'user') || [],
-
           })
           newChatList.push({
             id: item.id,
             content: item.answer,
+            query: item.query,
             agent_thoughts: addFileInfos(item.agent_thoughts ? sortAgentSorts(item.agent_thoughts) : item.agent_thoughts, item.message_files),
             feedback: item.feedback,
             isAnswer: true,
@@ -595,6 +596,19 @@ const Main: FC = () => {
     notify({ type: 'success', message: t('common.api.success') })
   }
 
+  const handleRating = async (messageId: string, params: RatingParams) => {
+    setRatings({
+      ...ratings,
+      [messageId]: params.rating,
+    })
+    await post(`/directus/message/${messageId}`, {
+      body: {
+        conversation_id: currConversationId,
+        ...params,
+      },
+    })
+  }
+
   const renderSidebar = () => {
     if (!APP_ID || !APP_INFO || !promptConfig)
       return null
@@ -655,8 +669,10 @@ const Main: FC = () => {
                 <div className='h-full overflow-y-auto' ref={chatListDomRef}>
                   <Chat
                     chatList={chatList}
+                    ratings={ratings}
                     onSend={handleSend}
                     onFeedback={handleFeedback}
+                    onRating={handleRating}
                     isResponding={isResponding}
                     checkCanSend={checkCanSend}
                     visionConfig={visionConfig}

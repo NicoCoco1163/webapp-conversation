@@ -49,6 +49,12 @@ export type Feedbacktype = {
   content?: string | null
 }
 
+export type RatingParams = {
+  rating: number
+  q?: string
+  a?: string
+}
+
 export type MessageMore = {
   time: string
   tokens: number
@@ -58,6 +64,10 @@ export type MessageMore = {
 export type IChatItem = {
   id: string
   content: string
+  /**
+   * The question that the user asked
+   */
+  query?: string
   /**
    * Specific message type
    */

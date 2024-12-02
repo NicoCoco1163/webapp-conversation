@@ -1,10 +1,13 @@
 'use client'
 import type { FC } from 'react'
 import React from 'react'
-import { HandThumbDownIcon, HandThumbUpIcon } from '@heroicons/react/24/outline'
+import { HandThumbDownIcon, HandThumbUpIcon, StarIcon } from '@heroicons/react/24/outline'
+import { StarIcon as StarIconFilled } from '@heroicons/react/24/solid'
+import { RadioGroup } from '@headlessui/react'
 import { useTranslation } from 'react-i18next'
+import classNames from 'classnames'
 import LoadingAnim from '../loading-anim'
-import type { FeedbackFunc } from '../type'
+import type { FeedbackFunc, RatingFunc } from '../type'
 import s from '../style.module.css'
 import ImageGallery from '../../base/image-gallery'
 import Thought from '../thought'
@@ -56,8 +59,10 @@ const IconWrapper: FC<{ children: React.ReactNode | string }> = ({ children }) =
 
 type IAnswerProps = {
   item: ChatItem
+  rating?: number
   feedbackDisabled: boolean
   onFeedback?: FeedbackFunc
+  onRating?: RatingFunc
   isResponding?: boolean
   allToolIcons?: Record<string, string | Emoji>
 }
@@ -65,8 +70,10 @@ type IAnswerProps = {
 // The component needs to maintain its own state to control whether to display input component
 const Answer: FC<IAnswerProps> = ({
   item,
+  rating,
   feedbackDisabled = false,
   onFeedback,
+  onRating,
   isResponding,
   allToolIcons,
 }) => {
@@ -114,10 +121,46 @@ const Answer: FC<IAnswerProps> = ({
    * @returns comp
    */
   const renderItemOperation = () => {
+    const ratings = [1, 2, 3, 4, 5]
     const userOperation = () => {
+      const preComp = <Tooltip selector={`user-feedback-${randomString(16)}`} content={'评分'}>
+        <RadioGroup
+          className='box-border flex items-center justify-center h-7 p-1 rounded-lg bg-white cursor-pointer text-gray-500 hover:text-gray-800'
+          style={{ boxShadow: '0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -2px rgba(0, 0, 0, 0.05)' }}
+          onChange={(value) => {
+            onRating?.(id, { rating: Number(value), a: item?.content, q: item?.query })
+          }}
+        >
+          <div className="flex flex-row-reverse justify-center gap-0.5">
+            {[...ratings].reverse().map(item => (
+              <RadioGroup.Option
+                key={item}
+                value={item}
+                className={({ active, checked }) =>
+                  classNames(
+                    'cursor-pointer text-gray-200',
+                    'flex-1 hover:text-yellow-400',
+                    'peer',
+                    'peer-hover:text-yellow-400',
+                    active ? 'text-yellow-500' : '',
+                    checked ? 'text-yellow-500' : '',
+                    Number(rating) >= item ? 'text-yellow-500' : '',
+                  )
+                }
+              >
+                <RadioGroup.Label as={
+                  Number(rating) >= item ? StarIconFilled : StarIcon
+                } className="w-4 h-4" />
+              </RadioGroup.Option>
+            ))}
+          </div>
+        </RadioGroup>
+      </Tooltip>
+
       return feedback?.rating
-        ? null
+        ? preComp
         : <div className='flex gap-1'>
+          {preComp}
           <Tooltip selector={`user-feedback-${randomString(16)}`} content={t('common.operation.like') as string}>
             {OperationBtn({ innerContent: <IconWrapper><RatingIcon isLike={true} /></IconWrapper>, onClick: () => onFeedback?.(id, { rating: 'like' }) })}
           </Tooltip>

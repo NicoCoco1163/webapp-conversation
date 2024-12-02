@@ -7,7 +7,7 @@ import Textarea from 'rc-textarea'
 import s from './style.module.css'
 import Answer from './answer'
 import Question from './question'
-import type { FeedbackFunc } from './type'
+import type { FeedbackFunc, RatingFunc } from './type'
 import type { ChatItem, VisionFile, VisionSettings } from '@/types/app'
 import { TransferMethod } from '@/types/app'
 import Tooltip from '@/app/components/base/tooltip'
@@ -18,6 +18,7 @@ import { useImageFiles } from '@/app/components/base/image-uploader/hooks'
 
 export type IChatProps = {
   chatList: ChatItem[]
+  ratings?: Record<string, number>
   /**
    * Whether to display the editing area and rating status
    */
@@ -27,6 +28,7 @@ export type IChatProps = {
    */
   isHideSendInput?: boolean
   onFeedback?: FeedbackFunc
+  onRating?: RatingFunc
   checkCanSend?: () => boolean
   onSend?: (message: string, files: VisionFile[]) => void
   useCurrentUserAvatar?: boolean
@@ -37,9 +39,11 @@ export type IChatProps = {
 
 const Chat: FC<IChatProps> = ({
   chatList,
+  ratings,
   feedbackDisabled = false,
   isHideSendInput = false,
   onFeedback,
+  onRating,
   checkCanSend,
   onSend = () => { },
   useCurrentUserAvatar,
@@ -127,8 +131,10 @@ const Chat: FC<IChatProps> = ({
             return <Answer
               key={item.id}
               item={item}
+              rating={ratings?.[item.id]}
               feedbackDisabled={feedbackDisabled}
               onFeedback={onFeedback}
+              onRating={onRating}
               isResponding={isResponding && isLast}
             />
           }
