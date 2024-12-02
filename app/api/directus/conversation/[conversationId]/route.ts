@@ -6,7 +6,9 @@ export async function GET(request: NextRequest, { params }: { params: { conversa
   const resp = await directusClient.request(
     readItems('dify_chat_history_spd', {
       filter: {
-        conversation_id: params.conversationId,
+        conversation_id: {
+          _eq: params.conversationId,
+        },
       },
       fields: [
         'message_id',
