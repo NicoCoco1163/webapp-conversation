@@ -93,7 +93,7 @@ const Chat: FC<IChatProps> = ({
         const len = textarea.value.length
         textarea.setSelectionRange(len, len)
       }
-    }, 3e2)
+    }, 2e2)
     return () => clearTimeout(timer)
   }, [isOpen])
 
@@ -101,6 +101,8 @@ const Chat: FC<IChatProps> = ({
     const rating = ratings?.[id]
     if (typeof rating?.meta === 'string')
       setQueryMeta(rating.meta)
+    else
+      setQueryMeta('')
 
     setCurrModalId(id)
     setIsOpen(true)
@@ -116,9 +118,15 @@ const Chat: FC<IChatProps> = ({
       const oQueryMeta = String(ratings?.[currModalId]?.meta)
 
       if (oQueryMeta !== queryMeta) {
-        onRating?.(currModalId, {
-          meta: queryMeta,
-        }).then(() => setIsOpen(false))
+        const finded = chatList.find(it => it.id === currModalId)
+
+        if (finded) {
+          onRating?.(currModalId, {
+            meta: queryMeta,
+            a: finded?.content,
+            q: finded?.query,
+          }).then(() => setIsOpen(false))
+        }
       }
     }
   }

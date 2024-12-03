@@ -597,17 +597,15 @@ const Main: FC = () => {
   }
 
   const handleRating = async (messageId: string, params: RatingParams) => {
+    const clone = Object.assign({}, ratings)
     const { rating, meta, ...ratingProps } = params
-    const clone = Object.assign({}, ratings, ratingProps)
 
-    if (rating !== undefined) {
-      ratings[messageId] ??= {}
-      ratings[messageId].rating = rating
-    }
-    if (meta !== undefined) {
-      ratings[messageId] ??= {}
-      ratings[messageId].meta = meta
-    }
+    clone[messageId] ??= ratingProps
+
+    if (rating !== undefined)
+      clone[messageId].rating = rating
+    if (meta !== undefined)
+      clone[messageId].meta = meta
 
     setRatings(clone)
     await post(`/directus/message/${messageId}`, {
