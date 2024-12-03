@@ -597,15 +597,16 @@ const Main: FC = () => {
   }
 
   const handleRating = async (messageId: string, params: RatingParams) => {
-    const clone = Object.assign({}, ratings)
+    const { rating, meta, ...ratingProps } = params
+    const clone = Object.assign({}, ratings, ratingProps)
 
-    if (params?.rating !== undefined) {
+    if (rating !== undefined) {
       ratings[messageId] ??= {}
-      ratings[messageId].rating = params.rating
+      ratings[messageId].rating = rating
     }
-    if (params?.meta !== undefined) {
+    if (meta !== undefined) {
       ratings[messageId] ??= {}
-      ratings[messageId].meta = params.meta
+      ratings[messageId].meta = meta
     }
 
     setRatings(clone)
