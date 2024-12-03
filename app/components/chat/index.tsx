@@ -1,9 +1,10 @@
 'use client'
 import type { FC } from 'react'
-import React, { useEffect, useRef } from 'react'
+import React, { Fragment, useEffect, useRef, useState } from 'react'
+import { Dialog, Transition } from '@headlessui/react'
 import cn from 'classnames'
 import { useTranslation } from 'react-i18next'
-import Textarea from 'rc-textarea'
+import Textarea, { type TextAreaRef } from 'rc-textarea'
 import s from './style.module.css'
 import Answer from './answer'
 import Question from './question'
@@ -18,7 +19,7 @@ import { useImageFiles } from '@/app/components/base/image-uploader/hooks'
 
 export type IChatProps = {
   chatList: ChatItem[]
-  ratings?: Record<string, number>
+  ratings?: Record<string, Record<string, unknown>>
   /**
    * Whether to display the editing area and rating status
    */
@@ -55,10 +56,19 @@ const Chat: FC<IChatProps> = ({
   const { notify } = Toast
   const isUseInputMethod = useRef(false)
 
-  const [query, setQuery] = React.useState('')
+  const [query, setQuery] = useState('')
+  const [queryMeta, setQueryMeta] = useState('')
+  const [currModalId, setCurrModalId] = useState('')
+  const [isOpen, setIsOpen] = useState(false)
+
   const handleContentChange = (e: any) => {
     const value = e.target.value
     setQuery(value)
+  }
+
+  const handleMetaContentChange = (e: any) => {
+    const value = e.target.value
+    setQueryMeta(value)
   }
 
   const logError = (message: string) => {
@@ -71,6 +81,46 @@ const Chat: FC<IChatProps> = ({
       return false
     }
     return true
+  }
+
+  const textareaRef = useRef<TextAreaRef>(null)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (textareaRef.current && isOpen) {
+        const textarea = textareaRef.current.resizableTextArea.textArea
+        textarea.focus()
+        const len = textarea.value.length
+        textarea.setSelectionRange(len, len)
+      }
+    }, 3e2)
+    return () => clearTimeout(timer)
+  }, [isOpen])
+
+  function openModal(id: string) {
+    const rating = ratings?.[id]
+    if (typeof rating?.meta === 'string')
+      setQueryMeta(rating.meta)
+
+    setCurrModalId(id)
+    setIsOpen(true)
+  }
+
+  function closeModal() {
+    setIsOpen(false)
+    setCurrModalId('')
+  }
+
+  function setRatingMeta() {
+    if (currModalId) {
+      const oQueryMeta = String(ratings?.[currModalId]?.meta)
+
+      if (oQueryMeta !== queryMeta) {
+        onRating?.(currModalId, {
+          meta: queryMeta,
+        }).then(() => setIsOpen(false))
+      }
+    }
   }
 
   useEffect(() => {
@@ -131,10 +181,11 @@ const Chat: FC<IChatProps> = ({
             return <Answer
               key={item.id}
               item={item}
-              rating={ratings?.[item.id]}
+              rating={Number(ratings?.[item.id]?.rating)}
               feedbackDisabled={feedbackDisabled}
               onFeedback={onFeedback}
               onRating={onRating}
+              onComment={openModal}
               isResponding={isResponding && isLast}
             />
           }
@@ -149,6 +200,70 @@ const Chat: FC<IChatProps> = ({
           )
         })}
       </div>
+      {/* Modal */}
+      <Transition appear show={isOpen} as={Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={() => { }}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black/25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
+                  >评价答案</Dialog.Title>
+                  <div className="mt-4 p-[5.5px] max-h-[150px] bg-white border-[1.5px] border-gray-200 rounded-xl overflow-y-auto">
+                    <Textarea
+                      ref={textareaRef}
+                      className={`
+                        block w-full px-2 py-[7px] leading-5 max-h-none text-sm text-gray-700 outline-none appearance-none resize-none
+                        ${visionConfig?.enabled && 'pl-12'}
+                      `}
+                      value={queryMeta}
+                      onChange={handleMetaContentChange}
+                      placeholder="请输入评价内容或者更好的答案"
+                      autoSize
+                    />
+                  </div>
+
+                  <div className="flex mt-6">
+                    <div className="flex-1"></div>
+                    <button
+                      type="button"
+                      className="inline-flex justify-center mr-2 rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      onClick={setRatingMeta}
+                    >保存</button>
+                    <button
+                      type="button"
+                      className="inline-flex justify-center rounded-md border px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      onClick={closeModal}
+                    >取消</button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
       {
         !isHideSendInput && (
           <div className={cn(!feedbackDisabled && '!left-3.5 !right-3.5', 'absolute z-10 bottom-0 left-0 right-0')}>

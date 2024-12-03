@@ -50,9 +50,11 @@ export type Feedbacktype = {
 }
 
 export type RatingParams = {
-  rating: number
+  message_id?: string
+  rating?: number
   q?: string
   a?: string
+  meta?: string
 }
 
 export type MessageMore = {

@@ -78,7 +78,7 @@ const Main: FC = () => {
     setExistConversationInfo,
   } = useConversation()
 
-  const [ratings, setRatings] = useState<Record<string, number>>({})
+  const [ratings, setRatings] = useState<Record<string, Record<string, unknown>>>({})
   const [conversationIdChangeBecauseOfNew, setConversationIdChangeBecauseOfNew, getConversationIdChangeBecauseOfNew] = useGetState(false)
   const [isChatStarted, { setTrue: setChatStarted, setFalse: setChatNotStarted }] = useBoolean(false)
   const handleStartChat = (inputs: Record<string, any>) => {
@@ -597,10 +597,18 @@ const Main: FC = () => {
   }
 
   const handleRating = async (messageId: string, params: RatingParams) => {
-    setRatings({
-      ...ratings,
-      [messageId]: params.rating,
-    })
+    const clone = Object.assign({}, ratings)
+
+    if (params?.rating !== undefined) {
+      ratings[messageId] ??= {}
+      ratings[messageId].rating = params.rating
+    }
+    if (params?.meta !== undefined) {
+      ratings[messageId] ??= {}
+      ratings[messageId].meta = params.meta
+    }
+
+    setRatings(clone)
     await post(`/directus/message/${messageId}`, {
       body: {
         conversation_id: currConversationId,

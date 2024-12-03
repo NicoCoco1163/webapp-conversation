@@ -13,6 +13,7 @@ export async function GET(request: NextRequest, { params }: { params: { conversa
       fields: [
         'message_id',
         'rating',
+        'meta',
       ],
       limit: 1000,
     }),

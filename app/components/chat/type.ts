@@ -33,6 +33,7 @@ export type Feedbacktype = {
 
 export type FeedbackFunc = (messageId: string, feedback: Feedbacktype) => Promise<any>
 export type RatingFunc = (messageId: string, rating: RatingParams) => Promise<any>
+export type CommentFunc = (messageId: string) => void
 export type SubmitAnnotationFunc = (messageId: string, content: string) => Promise<any>
 
 export type DisplayScene = 'web' | 'console'

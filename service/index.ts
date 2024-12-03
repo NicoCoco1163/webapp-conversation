@@ -62,18 +62,19 @@ export const generationConversationName = async (id: string) => {
 }
 
 export const getRatings = async (conversationId: string) => {
-  const map: Record<string, number> = {}
+  const map: Record<string, Record<string, unknown>> = {}
 
   try {
     const resp = (await get(`/directus/conversation/${conversationId}`)) as unknown as {
       data: {
         message_id: string
         rating: number
+        meta?: string
       }[]
     }
     if (Array.isArray(resp?.data)) {
       resp.data.forEach((item) => {
-        map[item.message_id] = item.rating
+        map[item.message_id] = item
       })
     }
   }
