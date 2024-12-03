@@ -20,4 +20,6 @@ export const setSession = (sessionId: string) => {
 }
 
 export const client = new ChatClient(API_KEY, API_URL || undefined)
-export const directusClient = createDirectus(DIRECTUS_URL).with(rest())
+export const directusClient = createDirectus(DIRECTUS_URL).with(rest({
+  onRequest: options => ({ ...options, cache: 'no-store' }),
+}))
