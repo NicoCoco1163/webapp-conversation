@@ -133,7 +133,11 @@ const Answer: FC<IAnswerProps> = ({
               className='box-border flex items-center justify-center h-7 p-1 rounded-lg bg-white cursor-pointer text-gray-500 hover:text-gray-800'
               style={{ boxShadow: '0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -2px rgba(0, 0, 0, 0.05)' }}
               onChange={(value) => {
-                onRating?.(id, { rating: Number(value), a: item?.content, q: item?.query })
+                onRating?.(id, {
+                  rating: Number(value),
+                  a: item?.content,
+                  q: item?.query ?? item?.workflowProcess?.tracing[0].inputs?.['sys.query'],
+                })
               }}
             >
               <div className="flex flex-row-reverse justify-center gap-0.5">
