@@ -124,7 +124,7 @@ const Chat: FC<IChatProps> = ({
           onRating?.(currModalId, {
             meta: queryMeta,
             a: finded?.content,
-            q: finded?.query,
+            q: finded?.query ?? finded?.workflowProcess?.tracing[0].inputs?.['sys.query'],
           }).then(() => setIsOpen(false))
         }
       }
