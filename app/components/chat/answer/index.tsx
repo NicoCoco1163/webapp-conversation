@@ -125,50 +125,48 @@ const Answer: FC<IAnswerProps> = ({
   const renderItemOperation = () => {
     const ratings = [1, 2, 3, 4, 5]
     const userOperation = () => {
-      const prevComps = isResponding
-        ? null
-        : <div className='flex gap-1'>
-          <Tooltip selector={`user-feedback-${randomString(16)}`} content={'评分'}>
-            <RadioGroup
-              className='box-border flex items-center justify-center h-7 p-1 rounded-lg bg-white cursor-pointer text-gray-500 hover:text-gray-800'
-              style={{ boxShadow: '0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -2px rgba(0, 0, 0, 0.05)' }}
-              onChange={(value) => {
-                onRating?.(id, {
-                  rating: Number(value),
-                  a: item?.content,
-                  q: item?.query ?? item?.workflowProcess?.tracing[0].inputs?.['sys.query'],
-                })
-              }}
-            >
-              <div className="flex flex-row-reverse justify-center gap-0.5">
-                {[...ratings].reverse().map(item => (
-                  <RadioGroup.Option
-                    key={item}
-                    value={item}
-                    className={({ active, checked }) =>
-                      classNames(
-                        'cursor-pointer text-gray-200',
-                        'flex-1 hover:text-yellow-400',
-                        'peer',
-                        'peer-hover:text-yellow-400',
-                        active ? 'text-yellow-500' : '',
-                        checked ? 'text-yellow-500' : '',
-                        Number(rating) >= item ? 'text-yellow-500' : '',
-                      )
-                    }
-                  >
-                    <RadioGroup.Label as={
-                      Number(rating) >= item ? StarIconFilled : StarIcon
-                    } className="w-4 h-4" />
-                  </RadioGroup.Option>
-                ))}
-              </div>
-            </RadioGroup>
-          </Tooltip>
-          <Tooltip selector={`user-feedback-${randomString(16)}`} content={'评价答案'}>
-            {OperationBtn({ innerContent: <IconWrapper><ChatBubbleBottomCenterTextIcon className='w-4 h-4' /></IconWrapper>, onClick: () => onComment?.(id) })}
-          </Tooltip>
-        </div>
+      const prevComps = <div className='flex gap-1'>
+        <Tooltip selector={`user-feedback-${randomString(16)}`} content={'评分'}>
+          <RadioGroup
+            className='box-border flex items-center justify-center h-7 p-1 rounded-lg bg-white cursor-pointer text-gray-500 hover:text-gray-800'
+            style={{ boxShadow: '0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -2px rgba(0, 0, 0, 0.05)' }}
+            onChange={(value) => {
+              onRating?.(id, {
+                rating: Number(value),
+                a: item?.content,
+                q: item?.query ?? item?.workflowProcess?.tracing[0].inputs?.['sys.query'],
+              })
+            }}
+          >
+            <div className="flex flex-row-reverse justify-center gap-0.5">
+              {[...ratings].reverse().map(item => (
+                <RadioGroup.Option
+                  key={item}
+                  value={item}
+                  className={({ active, checked }) =>
+                    classNames(
+                      'cursor-pointer text-gray-200',
+                      'flex-1 hover:text-yellow-400',
+                      'peer',
+                      'peer-hover:text-yellow-400',
+                      active ? 'text-yellow-500' : '',
+                      checked ? 'text-yellow-500' : '',
+                      Number(rating) >= item ? 'text-yellow-500' : '',
+                    )
+                  }
+                >
+                  <RadioGroup.Label as={
+                    Number(rating) >= item ? StarIconFilled : StarIcon
+                  } className="w-4 h-4" />
+                </RadioGroup.Option>
+              ))}
+            </div>
+          </RadioGroup>
+        </Tooltip>
+        <Tooltip selector={`user-feedback-${randomString(16)}`} content={'评价答案'}>
+          {OperationBtn({ innerContent: <IconWrapper><ChatBubbleBottomCenterTextIcon className='w-4 h-4' /></IconWrapper>, onClick: () => onComment?.(id) })}
+        </Tooltip>
+      </div>
 
       return feedback?.rating
         ? prevComps
